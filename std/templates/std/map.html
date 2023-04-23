@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+
+    <title>Map</title>
+
+    <style>
+        #map{
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+  </head>
+  <body>
+    {% include 'std/navbar.html' %}
+    {% block content %}
+    {% load static %}
+    <h1 class="text-center my-4">Mosques in Pakistan  <a class="btn btn-success" href="/std/dis/">Show Map</a></h1>
+    <!-- <h2 class="text-center my-4">List of Students</h2> -->
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table table-striped bg-succes">
+                            <thead>
+                              <tr>
+                                <th>S.No</th>
+                                <th>Code</th>
+                                <th>Mosque Name</th>
+                                <th>Lat</th>
+                                <th>Long</th>
+                                <th></th>
+                                
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for m in poi %}
+                              
+                                <tr>
+                                  <td>{{forloop.counter}}</td>
+                                  <td>{{ m.code }}</td>
+                                  <td>{{ m.name }}</td>
+                                  <td>{{ m.lat }}</td>
+                                  <td>{{ m.long }}</td>
+                                  <td>
+                                    <a href="/std/delete-map/{{m.gid}}" class="btn btn-danger md-sm">Delete</a>
+                                    <a href="/std/update-map/{{m.gid}}" class="btn btn-success md-sm">Update</a>
+                                  </td> 
+                                </tr>
+                               
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+    
+    <div id="map"></div>
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+   
+  </body>
+  
+</html>
+
+
+<script>
+    var map = L.map('map').setView([33.6805, 73.0057], 4);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+L.marker([33.6805, 73.0057]).addTo(map)
+    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+    .openPopup();
+
+
+</script>
+
+{% endblock %}

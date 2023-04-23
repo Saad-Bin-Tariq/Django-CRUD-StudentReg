@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mosques on Map</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+    <style>
+       
+        #map{
+            height: 100%;
+            width: 100%;
+        }
+        .container{
+            height: 120px;
+            width: 920px;
+            position:relative;
+        }
+        .box {
+            height: 100%;
+            width: 100%;
+            padding: 20px;
+            margin: 10px;
+            position: absolute;
+            z-index: 5;
+            border: 2px;
+            background: gray;
+            opacity: .8;
+            border-radius: 15px;
+            display: table;
+        }
+        .fc{
+            display: table-cell;
+            padding:0 25px 10px;
+        }
+
+        .content{
+            
+            color: black;
+            
+        }
+        .collapse{
+            display: block;
+            
+        }
+        
+       
+    </style>
+</head>
+<body>
+    {% include 'std/navbar.html' %}
+    <div class="text-center">
+        <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWidthExample" aria-expanded="false" aria-controls="collapseWidthExample">
+            Add Marker
+          </button>
+          <h1 style="display: inline-block;">   Mosques of Pakistan</h1>
+          
+    </div>
+
+   
+   
+            <div class="container">
+                <div class="box collapse" id="collapseWidthExample">
+                    
+                        <form class="content" action="/std/add-pt/" method="POST">
+                            {% csrf_token %}
+                            <div class="fc">
+                                <label for="name" >Name</label>
+                                <input name="name" type="text" id="name" class="form-control" placeholder="Enter Name" required>
+                            </div>
+                            <div class="fc">
+                                <label for="lat" >Latitude</label>
+                                <input name="lat" type="text" id="lat" class="form-control" placeholder="Enter Latitude" required>
+                            </div>
+                            <div class="fc">
+                                <label for="long" >Longitude</label>
+                                <input name="long" type="text" id="long"  class="form-control" placeholder="Enter Longitude" required>
+                            </div>
+                            <div class="fc">
+                                <button type="" class="btn btn-success">Add</button>
+                            </div>
+                        </form>
+                   
+                </div>
+            </div>
+    
+
+    <div id="map" style="position: absolute;top: 115px;z-index: 0;"></div>
+    
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<script>
+    var map = L.map('map').setView([30.335, 70.612],5);
+
+var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+});
+
+var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+	maxZoom: 17,
+	attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+});
+
+var CartoDB_DarkMatter = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 20
+});
+
+var pak = L.tileLayer.wms("http://localhost:8080/geoserver/SD_lab/wms?", {
+    layers: 'SD_lab:PAK_adm3',
+    format: 'image/png',
+    transparent: true,
+    attribution: "District Map of Pakistan"
+})
+
+var baseMaps = {
+    "osm":osm,
+    "topo":OpenTopoMap,
+    "dark":CartoDB_DarkMatter,
+    
+}
+
+var overlayMaps = {
+    "pak":pak
+}
+CartoDB_DarkMatter.addTo(map)
+pak.addTo(map)
+L.control.layers(baseMaps,overlayMaps, null, { collapsed: false }).addTo(map);
+;
+"{% for x in poi %}"
+
+L.marker(["{{x.lat}}", "{{x.long}}"]).addTo(map)
+    .bindPopup('<Strong>{{x.name}}</strong>')
+    .openPopup();
+
+
+"{% endfor %}"
+
+map.on("click", function(e){
+    var mc=new L.marker([e.latlng.lat,e.latlng.lng]).addTo(map);
+    document.getElementById('lat').value = e.latlng.lat.toFixed(4);
+    document.getElementById('long').value = e.latlng.lng.toFixed(4);
+})
+</script>

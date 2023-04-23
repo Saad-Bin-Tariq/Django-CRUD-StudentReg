@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Student
+from .models import Student, Poi
 
 # Create your views here.
 
@@ -54,3 +54,58 @@ def do_update_std(request,roll):
     
     std.save()
     return redirect('/std/home')
+
+def dis_map(request):
+    poi=Poi.objects.all()
+
+    return render(request,'std/map.html',{'poi':poi})
+
+def dis(request):
+    poi=Poi.objects.all()
+
+    return render(request,'std/test.html',{'poi':poi})
+
+def add_pt(request):
+    if request.method=='POST':
+        print('Added')
+        #user inputs
+        pt_name=request.POST.get('name')
+        pt_lat=request.POST.get('lat')
+        pt_long=request.POST.get('long')
+       
+
+        #creating object for model
+        m=Poi()
+        m.name=pt_name
+        m.lat=pt_lat
+        m.long=pt_long
+        
+        m.save()
+        return redirect('/std/dis/')
+
+       
+    return render(request,'std/test.html',{})
+
+def delete_map(request,gid):
+    m=Poi.objects.get(pk=gid)
+    m.delete()
+    return redirect('/std/dis-map/')
+
+def update_map(request,gid):
+    m=Poi.objects.get(pk=gid)
+    return render(request,'std/update_map.html',{'m':m})
+
+def do_update_map(request,gid):
+    pt_name=request.POST.get('pt_name')
+    pt_lat=request.POST.get('pt_lat')
+    pt_long=request.POST.get('pt_long')
+    
+
+    m=Poi.objects.get(pk=gid)
+
+    m.name=pt_name
+    m.lat=pt_lat
+    m.long=pt_long
+    
+    m.save()
+    return redirect('/std/dis-map')
